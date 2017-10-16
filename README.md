@@ -6,6 +6,7 @@ A tool to extract url links from the user's twitter timeline, and email them bac
 **Todo**
 - More tests !
 - extract url, title and image from the links
+- Dockerise
 
 
 **Installation**
