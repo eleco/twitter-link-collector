@@ -13,7 +13,7 @@ A tool to extract url links from the user's twitter timeline, and email them to 
 - A twitter app as defined here: https://apps.twitter.com/
 - Smtp email details: server, port and user/password.
 
-**Installation - Option 1: run locally **
+**Installation - Option 1: run locally**
 
 - Export the following environment parameters
        - TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET, TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET: from the Twitter app console
