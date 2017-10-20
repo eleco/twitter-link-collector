@@ -14,7 +14,7 @@ func isTitleElement(n *html.Node) bool {
 }
 
 func traverse(n *html.Node) (string, bool) {
-	if isTitleElement(n) {
+	if  isTitleElement(n) && n.FirstChild != nil  {
 		return n.FirstChild.Data, true
 	}
 

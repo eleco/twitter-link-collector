@@ -2,6 +2,7 @@ package title
 
 import (
 	"testing"
+	"golang.org/x/net/html"
 )
 
 func TestHtmlToRst(t *testing.T) {
@@ -12,5 +13,14 @@ func TestHtmlToRst(t *testing.T) {
 	}
 }
 
-//https://t.co/l50X3dtArh
+func TestShouldParseEmptyTitleNode_withoutCrashing(t *testing.T) {
+
+	node := html.Node{
+		Type:     html.ElementNode,
+		Data:     "title",
+	}
+	traverse(&node)
+}
+
+
 
