@@ -1,0 +1,27 @@
+#Sample systemd configuration
+
+[Unit]
+Description=twitter-link-collector
+After=network.target
+
+[Service]
+Type=simple
+User=xxxxx
+WorkingDirectory=<path to the go binary>
+ExecStart=<go binary>
+Restart=on-abort
+
+Environment=TWITTER_CONSUMER_KEY=xxxxx
+Environment=TWITTER_CONSUMER_SECRET=xxxxx
+Environment=TWITTER_ACCESS_TOKEN=xxxxx
+Environment=TWITTER_ACCESS_TOKEN_SECRET=xxxxx
+
+Environment=MAIL_USER=xxxxx
+Environment=MAIL_PASSWORD=xxxxx
+Environment=MAIL_HOST=xxxxx
+Environment=MAIL_PORT=xxxxx
+Environment=MAIL_RECIPIENT=xxxxx
+
+
+[Install]
+WantedBy=multi-user.target
