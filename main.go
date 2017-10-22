@@ -14,26 +14,15 @@ import (
 	"mvdan.cc/xurls"
 	"eleco/twitter-link-collector/title"
 	"eleco/twitter-link-collector/logging"
+	"sort"
 )
 
 const (
-	maxLinksInMemory  = 10
+	maxLinksInMemory  = 30
 )
 
-var (
-	consumerKey       = getenv("TWITTER_CONSUMER_KEY")
-	consumerSecret    = getenv("TWITTER_CONSUMER_SECRET")
-	accessToken       = getenv("TWITTER_ACCESS_TOKEN")
-	accessTokenSecret = getenv("TWITTER_ACCESS_TOKEN_SECRET")
-	mailUser          = getenv("MAIL_USER")
-	mailPassword      = getenv("MAIL_PASSWORD")
-	mailHost          = getenv("MAIL_HOST")
-	mailPort          = getenv("MAIL_PORT")
-	mailRecipient     = getenv("MAIL_RECIPIENT")
 
-)
-
-func getenv(name string) string {
+func env(name string) string {
 	v := os.Getenv(name)
 	if v == "" {
 		panic("missing required environment variable " + name)
@@ -41,24 +30,35 @@ func getenv(name string) string {
 	return v
 }
 
-type Tuple [2]string
+type Link struct {
+	linkTitle string
+	url string
+	 favourites int
+}
 
-var links = make(map[string]string)
+
+var links = make(map[string]Link)
 var logs = &logging.Logger{logrus.New()}
 var api *anaconda.TwitterApi
 
 func main() {
-	anaconda.SetConsumerKey(consumerKey)
-	anaconda.SetConsumerSecret(consumerSecret)
-	api = anaconda.NewTwitterApi(accessToken, accessTokenSecret)
+
+	anaconda.SetConsumerKey( env("TWITTER_CONSUMER_KEY"))
+	anaconda.SetConsumerSecret(env("TWITTER_CONSUMER_SECRET"))
+	api = anaconda.NewTwitterApi(env("TWITTER_ACCESS_TOKEN"), env("TWITTER_ACCESS_TOKEN_SECRET"))
 	api.SetLogger(logs)
 	title.Logs = logs
 
 	urlCh := make(chan anaconda.Tweet)
-	emailCh := make(chan Tuple)
+	defer close (urlCh)
+
+	emailCh := make(chan Link)
+	defer close(emailCh)
 
 	go htmlParser(urlCh, emailCh)
+
 	go gatherLinks(emailCh)
+
 
 	stream := api.UserStream(url.Values{})
 
@@ -75,19 +75,22 @@ func main() {
 	}
 }
 
-func gatherLinks(ch chan Tuple) {
+func gatherLinks(ch chan Link) {
 	for {
 		e := <-ch
-		logs.Infof("new link title:%s url:%s", e[1], e[0])
-		links[e[1]] = e[0]
-		if len(links) > maxLinksInMemory {
+		logs.Infof("new link: %v" , e)
+		if val, ok := links[e.linkTitle]; ok {
+			e.favourites += val.favourites
+		}
+		links[e.linkTitle] = e
+		if len(links) >= maxLinksInMemory {
 			sendEmail(links)
-			links = make(map[string]string)
+			links = make(map[string]Link)
 		}
 	}
 }
 
-func htmlParser(inCh chan anaconda.Tweet, outCh chan Tuple) {
+func htmlParser(inCh chan anaconda.Tweet, outCh chan Link) {
 	for {
 		tweet := <-inCh
 		if tweet.RetweetedStatus != nil {
@@ -102,24 +105,37 @@ func htmlParser(inCh chan anaconda.Tweet, outCh chan Tuple) {
 		if s != "" {
 			t, _ := title.GetHtmlTitle(s)
 			if t != "" {
-				outCh <- Tuple{s, t}
+				l := Link {t , s,tweet.FavoriteCount}
+				outCh <-  l
 			}
 		}
 	}
 }
 
-func sendEmail(links map[string]string) {
+func sendEmail(links map[string]Link) {
 
+
+	//sort links in order of favourites
+	s := make([]Link, len(links))
+	idx := 0
+	for  _, value := range links {
+		s[idx] = value
+		idx++
+	}
+	sort.Slice(s,  func(i, j int) bool {
+		return s[i].favourites > s[j].favourites
+	})
+
+	//build html formatted list of links
 	buffer := bytes.NewBufferString("");
-	i:=1;
-	for k,v := range links {
-		fmt.Fprint(buffer, i,". <a href=",v, ">", k, "</a><br>")
-		i++;
+	for _,v := range s {
+		fmt.Fprint(buffer, v.favourites , " likes: <a href=",v.url, ">", v.linkTitle,  "</a> <br>")
 	}
 
-	auth := smtp.PlainAuth("", mailUser, mailPassword, mailHost);
+	//send email
+	auth := smtp.PlainAuth("", env("MAIL_USER"), env("MAIL_PASSWORD"), env("MAIL_HOST"));
 	from := mail.Address{"twitter-link-collector", "no-reply"}
-	to := mail.Address{"", mailRecipient}
+	to := mail.Address{"", env("MAIL_RECIPIENT")}
 
 	header := make(map[string]string)
 	header["From"] = from.String()
@@ -136,7 +152,7 @@ func sendEmail(links map[string]string) {
 	message += "\r\n" + base64.StdEncoding.EncodeToString(buffer.Bytes())
 
 	err := smtp.SendMail(
-		mailHost+":"+mailPort,
+		env("MAIL_HOST")+":"+env("MAIL_PORT"),
 		auth,
 		from.Address,
 		[]string{to.Address},

@@ -1,11 +1,11 @@
 **twitter-link-collector**
 
-A tool to extract url links from the user's twitter timeline, and email them to a predefined mail box (in batch of 10).
+A tool to extract url links from the user's twitter timeline, and email them to a predefined mail box (in batch of 30).
 
 
 **Todo**
 - More tests !
-- extract url, title and image from the links
+- extract image from the links
 - Dockerise
 
 **Pre-requisites**
