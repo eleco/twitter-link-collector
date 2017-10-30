@@ -140,7 +140,7 @@ func sendEmail(links map[string]Link) {
 	header := make(map[string]string)
 	header["From"] = from.String()
 	header["To"] = to.String()
-	header["Subject"] = "Links from the Twitter collector"
+	header["Subject"] = "Links from the Twitter collector: " + s[0].linkTitle
 	header["MIME-Version"] = "1.0"
 	header["Content-Type"] = "text/html; charset=\"utf-8\""
 	header["Content-Transfer-Encoding"] = "base64"
