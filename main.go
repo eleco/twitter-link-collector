@@ -15,6 +15,7 @@ import (
 	"eleco/twitter-link-collector/title"
 	"eleco/twitter-link-collector/logging"
 	"sort"
+	"strings"
 )
 
 const (
@@ -105,7 +106,7 @@ func htmlParser(inCh chan anaconda.Tweet, outCh chan Link) {
 		if s != "" {
 			t, _ := title.GetHtmlTitle(s)
 			if t != "" {
-				l := Link {t , s,tweet.FavoriteCount}
+				l := Link {strings.TrimSpace(t) , s,tweet.FavoriteCount}
 				outCh <-  l
 			}
 		}
