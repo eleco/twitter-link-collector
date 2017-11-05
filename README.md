@@ -4,9 +4,11 @@ A tool to extract url links from the user's twitter timeline, and email them to 
 
 
 **Todo**
+- Monitor state of the websocket opened with Twitter
 - More tests !
 - extract image from the links
 - Dockerise
+
 
 **Pre-requisites**
 

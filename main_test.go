@@ -38,8 +38,8 @@ func Test(t *testing.T) {
 
 	go gatherLinks(emailCh)
 
-	l1 := Link {"title","url",3}
-	l2 := Link {"title","url",3}
+	l1 := Link {"title","url",3, "screen_name"}
+	l2 := Link {"title","url",3, "screen_name"}
 
 	emailCh <- l1
 	emailCh <- l2

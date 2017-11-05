@@ -34,7 +34,8 @@ func env(name string) string {
 type Link struct {
 	linkTitle string
 	url string
-	 favourites int
+	favourites int
+	author string
 }
 
 
@@ -71,7 +72,6 @@ func main() {
 			logs.Warningf("received unexpected value of type %T", v)
 			continue
 		}
-		logs.Infof(t.Text)
 		urlCh <- t
 	}
 }
@@ -106,7 +106,7 @@ func htmlParser(inCh chan anaconda.Tweet, outCh chan Link) {
 		if s != "" {
 			t, _ := title.GetHtmlTitle(s)
 			if t != "" {
-				l := Link {strings.TrimSpace(t) , s,tweet.FavoriteCount}
+				l := Link {strings.TrimSpace(t) , s,tweet.FavoriteCount, tweet.User.ScreenName}
 				outCh <-  l
 			}
 		}
@@ -129,8 +129,10 @@ func sendEmail(links map[string]Link) {
 
 	//build html formatted list of links
 	buffer := bytes.NewBufferString("");
+
 	for _,v := range s {
-		fmt.Fprint(buffer, v.favourites , " likes: <a href=",v.url, ">", v.linkTitle,  "</a> <br>")
+		fmt.Fprint(buffer, v.favourites , " likes: <a href=",v.url, ">", v.linkTitle,
+			"</a> via <a href=https://twitter.com/" , v.author  ,"> ", v.author  ,"</a> <br>")
 	}
 
 	//send email
