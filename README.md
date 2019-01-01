@@ -1,6 +1,6 @@
 **twitter-link-collector**
 
-A tool to extract url links from the user's twitter timeline, and email them to a predefined mail box (in batch of 30).
+A tool to extract url links from the user's twitter timeline, and email them to a predefined mail box 
 
 
 **Todo**
@@ -18,8 +18,8 @@ A tool to extract url links from the user's twitter timeline, and email them to 
 **Installation - Option 1: run locally**
 
 - Export the following environment parameters
-       - TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET, TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET: from the Twitter app console
-       - MAIL_USER, MAIL_PASSWORD, MAIL_HOST, MAIL_PORT, MAIL_RECIPIENT : the email client settings
+       * TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET, TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET: from the Twitter app console
+       * MAIL_USER, MAIL_PASSWORD, MAIL_HOST, MAIL_PORT, MAIL_RECIPIENT : the email client settings
 
 - `go run Main.go`
 
